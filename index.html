@@ -91,6 +91,15 @@
             color: #fde047;
             font-weight: bold;
         }
+        .control-key {
+            background: #334155;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border-bottom: 2px solid #1e293b;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #22d3ee;
+        }
     </style>
 </head>
 <body>
@@ -132,9 +141,15 @@
 
         <!-- Start Menu -->
         <div id="menu" class="absolute inset-0 flex flex-col items-center justify-center overlay">
-            <button id="settings-toggle" class="absolute top-6 right-6 p-3 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors pointer-events-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
+            <!-- Buttons container -->
+            <div class="absolute top-6 right-6 flex flex-col gap-4 pointer-events-auto">
+                <button id="settings-toggle" class="p-3 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors shadow-lg" title="Settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button id="help-toggle" class="p-3 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors shadow-lg" title="Controls">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </button>
+            </div>
 
             <h1 class="text-5xl font-extrabold mb-4 text-cyan-400 italic">TRIANGLE STRIKE</h1>
             <p class="text-lg mb-8 text-slate-300 font-light tracking-widest uppercase">Target: Survive as long as possible</p>
@@ -148,6 +163,42 @@
                 <div id="home-ranking" class="flex flex-col">
                     <!-- Rankings populated by JS -->
                 </div>
+            </div>
+        </div>
+
+        <!-- Help Modal (Controls) -->
+        <div id="help-modal" class="hidden absolute inset-0 flex items-center justify-center overlay">
+            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-700 shadow-2xl w-80 flex flex-col gap-4">
+                <h3 class="text-2xl font-bold text-cyan-400 border-b border-slate-700 pb-2 uppercase italic">Mission Controls</h3>
+                
+                <div class="flex flex-col gap-4 py-2">
+                    <div class="flex justify-between items-center">
+                        <span class="stat-label">Movement</span>
+                        <div class="flex gap-1">
+                            <span class="control-key">W</span><span class="control-key">A</span><span class="control-key">S</span><span class="control-key">D</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="stat-label">Fire</span>
+                        <span class="control-key">SPACE / CLICK</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="stat-label">Boost Dash</span>
+                        <span class="control-key">SHIFT</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="stat-label">Pause</span>
+                        <span class="control-key">ESC</span>
+                    </div>
+                    <div class="mt-2 p-3 bg-slate-800/50 rounded-lg text-xs text-slate-400 border border-slate-700/50">
+                        <p class="font-bold text-cyan-300/80 mb-1 underline">HINT</p>
+                        敵を撃つと、自動的に一番近い敵をロックオンして機体が回転します。
+                    </div>
+                </div>
+
+                <button id="help-close" class="mt-2 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl font-bold transition-colors">
+                    BACK
+                </button>
             </div>
         </div>
 
@@ -242,6 +293,7 @@
         const menu = document.getElementById('menu');
         const gameOverScreen = document.getElementById('game-over');
         const settingsModal = document.getElementById('settings-modal');
+        const helpModal = document.getElementById('help-modal');
         const settingsTitle = document.getElementById('settings-title');
         const settingsHomeBtn = document.getElementById('settings-home');
         const settingsCloseBtn = document.getElementById('settings-close');
@@ -256,6 +308,8 @@
         const restartBtn = document.getElementById('restart-btn');
         const homeBtn = document.getElementById('home-btn');
         const settingsToggle = document.getElementById('settings-toggle');
+        const helpToggle = document.getElementById('help-toggle');
+        const helpCloseBtn = document.getElementById('help-close');
 
         const bgmSlider = document.getElementById('bgm-slider');
         const seSlider = document.getElementById('se-slider');
@@ -322,7 +376,7 @@
 
         function renderRanking(elementId) {
             const container = document.getElementById(elementId);
-            if (!container) return; // 安全策
+            if (!container) return;
             
             const scores = getHighScores();
             
@@ -362,7 +416,7 @@
             startTime = Date.now(); totalPausedTime = 0; elapsedTime = 0;
             toastShown = false;
             updateUI();
-            renderRanking('home-ranking'); // ID名を HTMLに合わせる
+            renderRanking('home-ranking');
         }
 
         function playKillSound() { const s = killAudio.cloneNode(); s.volume = seVolume; s.play().catch(e => {}); }
@@ -551,7 +605,7 @@
             clearTimeout(spawnTimer);
             bgmAudio.currentTime = 0; bgmAudio.play().catch(() => {});
             init(); gameState = 'PLAYING';
-            menu.classList.add('hidden'); gameOverScreen.classList.add('hidden'); settingsModal.classList.add('hidden'); hud.classList.remove('hidden');
+            menu.classList.add('hidden'); gameOverScreen.classList.add('hidden'); settingsModal.classList.add('hidden'); helpModal.classList.add('hidden'); hud.classList.remove('hidden');
             spawnEnemy();
         }
 
@@ -574,13 +628,21 @@
             if (gameState === 'PLAYING') pauseGame();
             else if (gameState === 'MENU') {
                 settingsTitle.innerText = "SETTINGS"; settingsHomeBtn.classList.add('hidden'); settingsCloseBtn.innerText = "CLOSE"; settingsModal.classList.toggle('hidden');
+                helpModal.classList.add('hidden');
+            }
+        }
+
+        function toggleHelpMenu() {
+            if (gameState === 'MENU') {
+                helpModal.classList.toggle('hidden');
+                settingsModal.classList.add('hidden');
             }
         }
 
         function endGame() {
             gameState = 'GAMEOVER';
             bgmAudio.pause();
-            saveScore(score, kills, elapsedTime); // Save to rankings
+            saveScore(score, kills, elapsedTime);
             
             gameOverScreen.classList.remove('hidden');
             hud.classList.add('hidden');
@@ -592,7 +654,7 @@
 
         function showMenu() {
             gameState = 'MENU'; bgmAudio.pause(); bgmAudio.currentTime = 0; clearTimeout(spawnTimer);
-            gameOverScreen.classList.add('hidden'); settingsModal.classList.add('hidden'); menu.classList.remove('hidden'); hud.classList.add('hidden');
+            gameOverScreen.classList.add('hidden'); settingsModal.classList.add('hidden'); helpModal.classList.add('hidden'); menu.classList.remove('hidden'); hud.classList.add('hidden');
             renderRanking('home-ranking');
             init(); 
         }
@@ -603,7 +665,10 @@
             if (e.key === 'Escape') {
                 if (gameState === 'PLAYING') pauseGame();
                 else if (gameState === 'PAUSED') resumeGame();
-                else if (gameState === 'MENU') settingsModal.classList.add('hidden');
+                else if (gameState === 'MENU') {
+                    settingsModal.classList.add('hidden');
+                    helpModal.classList.add('hidden');
+                }
             }
         });
 
@@ -620,10 +685,11 @@
         restartBtn.addEventListener('click', startGame);
         homeBtn.addEventListener('click', showMenu);
         settingsToggle.addEventListener('click', (e) => { e.stopPropagation(); toggleSettingsMenu(); });
+        helpToggle.addEventListener('click', (e) => { e.stopPropagation(); toggleHelpMenu(); });
+        helpCloseBtn.addEventListener('click', () => helpModal.classList.add('hidden'));
         settingsCloseBtn.addEventListener('click', resumeGame);
         settingsHomeBtn.addEventListener('click', showMenu);
 
-        // 初回起動時のレンダリング
         window.onload = () => {
             renderRanking('home-ranking');
             init();
