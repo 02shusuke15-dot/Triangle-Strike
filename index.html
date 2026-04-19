@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Triangle Strike - Custom SE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0f172a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: none;
+        }
+        canvas {
+            display: block;
+        }
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            color: white;
+            user-select: none;
+        }
+        .overlay {
+            pointer-events: auto;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+        }
+        .boost-bar-container {
+            width: 150px;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        #boost-fill {
+            height: 100%;
+            width: 100%;
+            background: #22d3ee;
+            transition: width 0.1s linear;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #94a3b8;
+            font-weight: bold;
+        }
+        .level-up-toast {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fde047;
+            font-size: 2rem;
+            font-weight: 900;
+            text-shadow: 0 0 20px rgba(253, 224, 71, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.5s;
+        }
+        .level-up-active {
+            opacity: 1;
+            transform: translate(-50%, -80%);
+        }
+        input[type=range] {
+            accent-color: #22d3ee;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <!-- Status Display -->
+        <div id="hud" class="p-4 flex justify-between items-start w-full hidden">
+            <div class="flex flex-col gap-2">
+                <div>
+                    <div class="stat-label">Score</div>
+                    <div class="text-2xl font-bold leading-tight" id="score">0</div>
+                </div>
+                <div class="flex gap-4">
+                    <div>
+                        <div class="stat-label">Kills</div>
+                        <div class="text-xl font-mono" id="kills">0</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">Time</div>
+                        <div class="text-xl font-mono" id="timer">00:00</div>
+                    </div>
+                </div>
+                <div class="mt-1">
+                    <div class="stat-label">Boost (SHIFT)</div>
+                    <div class="boost-bar-container">
+                        <div id="boost-fill"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-right">
+                <div class="stat-label text-right">Life</div>
+                <div class="text-2xl" id="life">❤❤❤</div>
+            </div>
+        </div>
+
+        <div id="level-toast" class="level-up-toast italic">INTENSITY MAX!!</div>
+
+        <!-- Start Menu -->
+        <div id="menu" class="absolute inset-0 flex flex-col items-center justify-center overlay">
+            <button id="settings-toggle" class="absolute top-6 right-6 p-3 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors pointer-events-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+
+            <h1 class="text-5xl font-extrabold mb-4 text-cyan-400 italic">TRIANGLE STRIKE</h1>
+            <p class="text-lg mb-8 text-slate-300 font-light tracking-widest uppercase">Target: Survive as long as possible</p>
+            
+            <button id="start-btn" class="px-10 py-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full text-2xl font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-cyan-900/50">
+                START MISSION
+            </button>
+
+            <div class="mt-12 grid grid-cols-2 gap-6 text-sm text-slate-400 bg-slate-900/80 p-6 rounded-2xl border border-slate-700 shadow-2xl">
+                <div>
+                    <span class="text-cyan-400 font-bold uppercase tracking-tighter">[CONTROLS]</span><br>
+                    WASD: Move<br>
+                    SPACE/CLICK: Shoot
+                </div>
+                <div>
+                    <span class="text-cyan-400 font-bold uppercase tracking-tighter">[SKILL]</span><br>
+                    SHIFT: Boost Dash<br>
+                    (Short Invulnerability)
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="hidden absolute inset-0 flex items-center justify-center overlay">
+            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-700 shadow-2xl w-80 flex flex-col gap-6">
+                <h3 class="text-2xl font-bold text-cyan-400 border-b border-slate-700 pb-2">SETTINGS</h3>
+                
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between items-center">
+                        <label class="stat-label">BGM Volume</label>
+                        <span id="bgm-val" class="text-xs font-mono">10%</span>
+                    </div>
+                    <input type="range" id="bgm-slider" min="0" max="1" step="0.01" value="0.1" class="w-full">
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between items-center">
+                        <label class="stat-label">SE Volume</label>
+                        <span id="se-val" class="text-xs font-mono">30%</span>
+                    </div>
+                    <input type="range" id="se-slider" min="0" max="1" step="0.01" value="0.3" class="w-full">
+                </div>
+
+                <button id="settings-close" class="mt-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold transition-colors">
+                    CLOSE
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Over -->
+        <div id="game-over" class="hidden absolute inset-0 flex flex-col items-center justify-center overlay text-center">
+            <h2 class="text-7xl font-black text-red-500 mb-2 italic">MISSION FAILED</h2>
+            
+            <div class="bg-slate-900/80 p-8 rounded-3xl border border-red-900/30 shadow-2xl mb-8 w-80">
+                <p class="text-slate-400 uppercase text-sm font-bold mb-1">Final Score</p>
+                <p class="text-5xl font-bold mb-6 text-white" id="final-score">0</p>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-slate-500 text-xs font-bold uppercase">Kills</p>
+                        <p class="text-xl font-mono text-cyan-400" id="final-kills">0</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-500 text-xs font-bold uppercase">Time</p>
+                        <p class="text-xl font-mono text-cyan-400" id="final-time">00:00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4">
+                <button id="restart-btn" class="px-10 py-4 bg-white text-slate-900 rounded-full text-2xl font-bold transition-all hover:scale-105 active:scale-95 shadow-xl">
+                    REDEPLOY
+                </button>
+                <button id="home-btn" class="px-10 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-full text-lg font-bold transition-all hover:scale-105 active:scale-95 shadow-lg">
+                    BACK TO HOME
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // UI Elements
+        const hud = document.getElementById('hud');
+        const scoreEl = document.getElementById('score');
+        const killsEl = document.getElementById('kills');
+        const timerEl = document.getElementById('timer');
+        const lifeEl = document.getElementById('life');
+        const boostFill = document.getElementById('boost-fill');
+        const levelToast = document.getElementById('level-toast');
+        const menu = document.getElementById('menu');
+        const gameOverScreen = document.getElementById('game-over');
+        const settingsModal = document.getElementById('settings-modal');
+        
+        const finalScoreEl = document.getElementById('final-score');
+        const finalKillsEl = document.getElementById('final-kills');
+        const finalTimeEl = document.getElementById('final-time');
+        
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const homeBtn = document.getElementById('home-btn');
+        const settingsToggle = document.getElementById('settings-toggle');
+        const settingsClose = document.getElementById('settings-close');
+
+        // Audio Settings Elements
+        const bgmSlider = document.getElementById('bgm-slider');
+        const seSlider = document.getElementById('se-slider');
+        const bgmValLabel = document.getElementById('bgm-val');
+        const seValLabel = document.getElementById('se-val');
+
+        // Audio Setup
+        // 敵撃破時のSE (explosion03)
+        const killSoundUrl = "https://raw.githubusercontent.com/02shusuke15-dot/materials/main/maou_se_battle_explosion03.mp3";
+        const killAudio = new Audio(killSoundUrl);
+
+        // 接触時（ダメージ）のSE (explosion06)
+        const hitSoundUrl = "https://raw.githubusercontent.com/02shusuke15-dot/materials/main/maou_se_battle_explosion06.mp3";
+        const hitAudio = new Audio(hitSoundUrl);
+        
+        const bgmSoundUrl = "https://raw.githubusercontent.com/02shusuke15-dot/materials/main/maou_bgm_fantasy04.mp3";
+        const bgmAudio = new Audio(bgmSoundUrl);
+        bgmAudio.loop = true;
+
+        // Default Volumes (Updated SE to 30%)
+        let bgmVolume = 0.1;
+        let seVolume = 0.3;
+
+        function updateVolumeSettings() {
+            bgmVolume = parseFloat(bgmSlider.value);
+            seVolume = parseFloat(seSlider.value);
+            
+            bgmAudio.volume = bgmVolume;
+            // メインオブジェクトの音量も一応更新
+            killAudio.volume = seVolume;
+            hitAudio.volume = seVolume;
+            
+            bgmValLabel.innerText = Math.round(bgmVolume * 100) + "%";
+            seValLabel.innerText = Math.round(seVolume * 100) + "%";
+        }
+
+        // Initialize volumes
+        updateVolumeSettings();
+
+        bgmSlider.addEventListener('input', updateVolumeSettings);
+        seSlider.addEventListener('input', updateVolumeSettings);
+
+        let gameState = 'MENU';
+        let score = 0;
+        let kills = 0;
+        let life = 3;
+        let startTime = 0;
+        let elapsedTime = 0;
+        let toastShown = false;
+        let spawnTimer = null;
+
+        let player;
+        let bullets = [];
+        let enemies = [];
+        let particles = [];
+
+        const keys = {
+            w: false, a: false, s: false, d: false,
+            shift: false, space: false
+        };
+        const mouse = { x: 0, y: 0 };
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            player = {
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                radius: 15,
+                angle: 0,
+                color: '#22d3ee',
+                vx: 0,
+                vy: 0,
+                friction: 0.9,
+                boostCooldown: 0,
+                boostMaxCooldown: 180, 
+                invulnerable: 0
+            };
+
+            bullets = [];
+            enemies = [];
+            particles = [];
+            score = 0;
+            kills = 0;
+            life = 3;
+            startTime = Date.now();
+            elapsedTime = 0;
+            toastShown = false;
+            
+            updateUI();
+        }
+
+        class Bullet {
+            constructor(x, y, angle) {
+                this.x = x;
+                this.y = y;
+                this.vx = Math.cos(angle) * 16;
+                this.vy = Math.sin(angle) * 16;
+                this.radius = 4;
+                this.color = '#fde047';
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.closePath();
+                ctx.shadowBlur = 0;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+        }
+
+        class Enemy {
+            constructor() {
+                const edge = Math.floor(Math.random() * 4);
+                if (edge === 0) { this.x = Math.random() * canvas.width; this.y = -30; }
+                else if (edge === 1) { this.x = canvas.width + 30; this.y = Math.random() * canvas.height; }
+                else if (edge === 2) { this.x = Math.random() * canvas.width; this.y = canvas.height + 30; }
+                else { this.x = -30; this.y = Math.random() * canvas.height; }
+
+                this.radius = 8 + Math.random() * 14; 
+                this.maxHp = Math.ceil((this.radius - 6) / 5);
+                this.hp = this.maxHp;
+                
+                const speedBase = 35 / this.radius; 
+                const timeFactor = Math.min(1, elapsedTime / 30000);
+                this.speed = (speedBase + Math.random() * 1.0) * (1 + timeFactor * 0.7);
+                
+                this.color = this.hp > 2 ? '#ef4444' : (this.hp > 1 ? '#f87171' : '#fb923c');
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius * 0.4 * (this.hp / this.maxHp), 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+            update() {
+                const dx = player.x - this.x;
+                const dy = player.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist > 0) {
+                    this.x += (dx / dist) * this.speed;
+                    this.y += (dy / dist) * this.speed;
+                }
+            }
+        }
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x; this.y = y; this.color = color;
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8;
+                this.alpha = 1;
+                this.decay = 0.02 + Math.random() * 0.03;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= this.decay;
+            }
+        }
+
+        // 再生関数をSEごとに作成
+        function playKillSound() {
+            const sound = killAudio.cloneNode();
+            sound.volume = seVolume;
+            sound.play().catch(e => {});
+        }
+
+        function playHitSound() {
+            const sound = hitAudio.cloneNode();
+            sound.volume = seVolume;
+            sound.play().catch(e => {});
+        }
+
+        function formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function showLevelUp() {
+            levelToast.classList.add('level-up-active');
+            setTimeout(() => levelToast.classList.remove('level-up-active'), 1500);
+        }
+
+        function spawnEnemy() {
+            if (gameState !== 'PLAYING') return;
+            enemies.push(new Enemy());
+            const timeFactor = Math.min(1, elapsedTime / 30000);
+            if (timeFactor >= 1 && !toastShown) {
+                showLevelUp();
+                toastShown = true;
+            }
+            const startInterval = 1400;
+            const endInterval = 500;
+            const currentInterval = startInterval - (startInterval - endInterval) * timeFactor;
+            const nextSpawn = Math.max(endInterval, currentInterval - (Math.random() * 100));
+            spawnTimer = setTimeout(spawnEnemy, nextSpawn);
+        }
+
+        function createExplosion(x, y, color, count = 10) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function updateUI() {
+            scoreEl.innerText = score.toLocaleString();
+            killsEl.innerText = kills;
+            lifeEl.innerText = '❤'.repeat(Math.max(0, life));
+            if (gameState === 'PLAYING') {
+                elapsedTime = Date.now() - startTime;
+                timerEl.innerText = formatTime(elapsedTime);
+            }
+            const ratio = (1 - player.boostCooldown / player.boostMaxCooldown) * 100;
+            boostFill.style.width = `${ratio}%`;
+            boostFill.style.backgroundColor = ratio === 100 ? '#22d3ee' : '#64748b';
+        }
+
+        function shoot() {
+            bullets.push(new Bullet(player.x, player.y, player.angle));
+        }
+
+        function handleInput() {
+            if (gameState !== 'PLAYING') return;
+            let ax = 0, ay = 0;
+            if (keys.w) ay -= 1;
+            if (keys.s) ay += 1;
+            if (keys.a) ax -= 1;
+            if (keys.d) ax += 1;
+            if (ax !== 0 || ay !== 0) {
+                const mag = Math.sqrt(ax * ax + ay * ay);
+                ax /= mag; ay /= mag;
+            }
+            player.vx += ax * 0.9;
+            player.vy += ay * 0.9;
+            if (keys.shift && player.boostCooldown <= 0) {
+                if (ax !== 0 || ay !== 0) {
+                    player.vx += ax * 14; player.vy += ay * 14;
+                } else {
+                    player.vx += Math.cos(player.angle) * 14; player.vy += Math.sin(player.angle) * 14;
+                }
+                player.boostCooldown = player.boostMaxCooldown;
+                player.invulnerable = 15; 
+                createExplosion(player.x, player.y, '#fff', 15);
+            }
+        }
+
+        function updateRotation() {
+            if (enemies.length === 0) {
+                const targetAngle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+                player.angle = lerpAngle(player.angle, targetAngle, 0.1);
+                return;
+            }
+            let closestEnemy = null;
+            let minDistance = Infinity;
+            enemies.forEach(enemy => {
+                const dist = Math.hypot(enemy.x - player.x, enemy.y - player.y);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    closestEnemy = enemy;
+                }
+            });
+            if (closestEnemy) {
+                const targetAngle = Math.atan2(closestEnemy.y - player.y, closestEnemy.x - player.x);
+                player.angle = lerpAngle(player.angle, targetAngle, 0.25);
+            }
+        }
+
+        function lerpAngle(a, b, step) {
+            let delta = b - a;
+            while (delta < -Math.PI) delta += Math.PI * 2;
+            while (delta > Math.PI) delta -= Math.PI * 2;
+            return a + delta * step;
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach((p, i) => { p.update(); p.draw(); if (p.alpha <= 0) particles.splice(i, 1); });
+
+            if (gameState === 'PLAYING' || gameState === 'GAMEOVER') {
+                handleInput();
+                player.x += player.vx; player.y += player.vy;
+                player.vx *= player.friction; player.vy *= player.friction;
+                player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
+                player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+                if (gameState === 'PLAYING') {
+                    updateRotation();
+                    updateUI(); 
+                }
+                if (player.boostCooldown > 0) player.boostCooldown--;
+                if (player.invulnerable > 0) player.invulnerable--;
+                
+                bullets.forEach((b, i) => {
+                    b.update(); b.draw();
+                    if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+                        bullets.splice(i, 1);
+                    } else {
+                        enemies.forEach((e, j) => {
+                            if (Math.hypot(b.x - e.x, b.y - e.y) < e.radius) {
+                                e.hp--;
+                                bullets.splice(i, 1);
+                                if (e.hp <= 0) {
+                                    score += (e.maxHp * 150);
+                                    kills += 1;
+                                    updateUI();
+                                    playKillSound(); // 敵撃破: explosion03
+                                    createExplosion(e.x, e.y, e.color, 12);
+                                    enemies.splice(j, 1);
+                                } else {
+                                    createExplosion(b.x, b.y, '#ffffff', 3);
+                                }
+                            }
+                        });
+                    }
+                });
+
+                enemies.forEach((e, i) => {
+                    e.update(); e.draw();
+                    if (gameState === 'PLAYING' && player.invulnerable <= 0) {
+                        if (Math.hypot(e.x - player.x, e.y - player.y) < e.radius + player.radius) {
+                            life--; updateUI();
+                            playHitSound(); // 接触ダメージ: explosion06
+                            createExplosion(player.x, player.y, '#ffffff', 20);
+                            enemies.splice(i, 1);
+                            if (life <= 0) endGame();
+                        }
+                    }
+                });
+
+                if (gameState === 'PLAYING') {
+                    ctx.save();
+                    ctx.translate(player.x, player.y);
+                    ctx.rotate(player.angle);
+                    if (player.invulnerable > 0 && Math.floor(Date.now() / 50) % 2 === 0) ctx.globalAlpha = 0.3;
+                    ctx.beginPath();
+                    ctx.moveTo(player.radius * 1.5, 0);
+                    ctx.lineTo(-player.radius, player.radius);
+                    ctx.lineTo(-player.radius * 0.5, 0);
+                    ctx.lineTo(-player.radius, -player.radius);
+                    ctx.closePath();
+                    ctx.fillStyle = player.color;
+                    ctx.shadowBlur = player.invulnerable > 0 ? 30 : 15;
+                    ctx.shadowColor = player.color;
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            clearTimeout(spawnTimer);
+            
+            bgmAudio.currentTime = 0;
+            bgmAudio.play().catch(() => {});
+
+            // プリロード
+            killAudio.play().then(() => { killAudio.pause(); killAudio.currentTime = 0; }).catch(() => {});
+            hitAudio.play().then(() => { hitAudio.pause(); hitAudio.currentTime = 0; }).catch(() => {});
+            
+            init();
+            gameState = 'PLAYING';
+            menu.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            hud.classList.remove('hidden');
+            spawnEnemy();
+        }
+
+        function endGame() {
+            gameState = 'GAMEOVER';
+            bgmAudio.pause();
+            
+            gameOverScreen.classList.remove('hidden');
+            hud.classList.add('hidden');
+            finalScoreEl.innerText = score.toLocaleString();
+            finalKillsEl.innerText = kills;
+            finalTimeEl.innerText = formatTime(elapsedTime);
+        }
+
+        function showMenu() {
+            gameState = 'MENU';
+            bgmAudio.pause();
+            bgmAudio.currentTime = 0;
+
+            clearTimeout(spawnTimer);
+            gameOverScreen.classList.add('hidden');
+            menu.classList.remove('hidden');
+            hud.classList.add('hidden');
+            init(); 
+        }
+
+        function toggleSettings() {
+            settingsModal.classList.toggle('hidden');
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const k = e.key.toLowerCase();
+            if (k in keys) keys[k] = true;
+            if (e.code === 'Space') {
+                keys.space = true;
+                if (gameState === 'PLAYING') shoot();
+            }
+            if (e.key === 'Escape') settingsModal.classList.add('hidden');
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const k = e.key.toLowerCase();
+            if (k in keys) keys[k] = false;
+            if (e.code === 'Space') keys.space = false;
+        });
+
+        window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        window.addEventListener('mousedown', () => { if (gameState === 'PLAYING') shoot(); });
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+        homeBtn.addEventListener('click', showMenu);
+        settingsToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSettings();
+        });
+        settingsClose.addEventListener('click', toggleSettings);
+
+        init();
+        gameLoop();
+    </script>
+</body>
+</html>
