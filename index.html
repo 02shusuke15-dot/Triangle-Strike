@@ -1,679 +1,290 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Triangle Strike - Custom SE</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #0f172a;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+Gemini
+三角形と丸のシューティングゲーム
+エンタープライズ ロゴ
+Gemini との会話
+三角形の戦闘機と丸の敵が出る
+
+画面中心からスタートし敵が出てきて、三角が丸を撃ち落とすシューティングアクションゲーム
+
+丸はぶつかりに来る
+
+シンプルな三角形の自衛機を操作して、迫りくる円形の敵を撃墜するシューティングアクションゲームを作成しました。
+
+画面中央からスタートし、マウス（またはタッチ）で移動、クリック（またはタップ）で弾を発射します。敵は画面の外からプレイヤーに向かって執拗に追いかけてきます。
+Triangle Strike - High Score System
+4月19日 16:01
+
+ゲームの特徴
+操作: マウスの移動（スマホはスワイプ）で自機が追いかけてきます。クリック（タップ）で弾を撃ちます。
+
+追跡アルゴリズム: 円形の敵は、常にプレイヤーの座標を計算して最短距離で向かってきます。
+
+難易度: 時間が経過するごとに敵の生成スピードと移動速度が徐々に上がります。
+
+エフェクト: 敵を倒した時やダメージを受けた時に、火花のようなパーティクルが散る演出を入れています。
+
+お楽しみください！
+
+WASD移動、スペースでアタック、シフトでブーストを使えるようにして（クールタイム3秒）
+
+キーボード操作（WASD）への変更と、シフトキーによるブースト機能、スペースキーでの攻撃を追加しました。
+
+ブースト機能の仕様：
+
+Shiftキー: 瞬間的に速度が上がり、無敵状態になります。
+
+クールタイム: 3秒（画面上にインジケーターを表示します）。
+
+WASD: 上下左右の移動に使用します。
+
+アップデート内容
+移動システムの刷新: マウス追従から WASDキー による慣性移動に変更しました。
+
+ブースト機能 (Shift):
+
+Shiftキーを押すと、進行方向に一気に加速します。
+
+発動から約0.3秒間は無敵状態（体がより明るく光ります）になり、敵をすり抜けることができます。
+
+3秒間のクールタイムがあり、画面左上の青いゲージでチャージ状況を確認できます。
+
+攻撃方法の追加: スペースキー またはマウス左クリックでショットを撃てます。
+
+UIの改善: 操作説明を更新し、ブーストゲージを追加しました。
+
+三角形の機動力を活かして、円形の敵を華麗に撃退してください！
+
+三角の向きは一番近くの敵を向くようにして
+
+自機の三角形が常に「最も近くにいる敵」の方向を自動で向くようにロジックを変更しました。これにより、WASDで移動しながら、近くの敵を効率的に狙い撃つことができるようになります。
+
+更新内容
+オートエイム機能: 画面内の全ての敵をリアルタイムでスキャンし、最も距離が近い敵の方向に自動で機首を向けるようにしました。
+
+滑らかな回転: パッと一瞬で向きが変わるのではなく、滑らかに回転してターゲットを捉えるように調整しています（lerpAngle関数を使用）。
+
+敵がいない場合: 敵が画面にいないときは、従来通りマウスの方向を向くようになっています。
+
+これで移動と回避（ブースト）に専念しながら、確実に敵を狙うことが可能になりました！
+
+ブーストは少し前に出る程度にして
+
+敵のサイズを少し小さく
+
+ブーストの挙動を「瞬間的なワープ」から「少し前進する加速」へと調整し、敵のサイズを一回り小さく変更しました。これにより、より繊細なコントロールと回避が楽しめるようになります。
+
+調整内容
+ブースト (Shift): 以前のワープに近い挙動から、「現在の移動方向（または向き）に対して強力な加速を加える」ダッシュのような挙動に変更しました。
+
+敵のサイズ: Enemyクラスの半径を小さく設定し、以前よりも画面がスッキリしつつ、ターゲットが小さくなったことで精密なショットが求められるようになりました。
+
+出現頻度: 敵が小さくなった分、出現頻度をわずかに調整しています。
+
+これで機動力と精密さのバランスが良くなったはずです。ぜひ試してみてください！
+
+出現率を時間が経つごとに少しずつ増やして
+
+画面左うえに撃破数と時間を出して
+
+ゲームの緊張感を高めるため、時間の経過とともに敵の出現率が上がる仕組みを強化し、画面左上に「撃破数（KILLS）」と「生存時間（TIME）」の表示を追加しました。
+
+主な変更点：
+
+出現率の動的変化: spawnEnemy関数内で、経過時間に応じて待ち時間が短くなるロジックを最適化しました。
+
+UIの追加: 画面左上に撃破数とタイマーをリアルタイムで表示します。
+
+リザルト表示: ゲームオーバー画面にも最終的な撃破数と生存時間を表示するようにしました。
+
+敵を10体倒すごとに敵の出現率を上げて
+
+敵を10体倒すごとに難易度（出現率と敵の速度）が上昇するロジックを組み込みました。
+kills変数をチェックし、10の倍数に達するたびにdifficultyMultiplierを上乗せすることで、段階的に攻勢が激しくなるように調整しています。
+
+30秒で50体出るように変えて
+
+サイズで敵のHPを変えて
+
+30秒経過した時点で出現間隔が最短（50体/30秒ペース）に到達するように出現ロジックを再設計し、さらに敵のサイズ（半径）が大きくなるほどHPが増える仕組みを導入しました。
+
+主な変更点：
+
+出現率の調整: difficultyMultiplierが30秒（elapsedTime / 30000）で最大になるようにし、その際に秒間約1.6体（30秒で50体）のペースで出現するように調整しました。
+
+HPのサイズ連動: Enemyクラス内で、半径に応じたHP設定を強化しました。小さい敵は1発、大きい敵は2〜3発耐えるようになっています。
+
+視覚的フィードバック: HPが多い敵は、ダメージを受けた際の色やエフェクトで耐久性を感じられるよう調整しています。
+
+サイズが小さいほど素早くして
+
+敵のサイズと速度を反比例させ、小さい敵ほど高速に、大きい敵ほど低速（かつ高耐久）になるようロジックを更新しました。
+
+主な調整内容：
+
+速度の計算: this.radius（半径）の逆数をベースに速度を算出するように変更しました。小さい敵（半径8）は非常に素早く、大きい敵（半径22）は重厚な動きになります。
+
+時間経過による加速: 30秒に向けて全体的なベーススピードも底上げされるため、後半の小さい敵はかなりの脅威になります。
+
+https://github.com/02shusuke15-dot/materials/blob/main/maou_se_battle_explosion06.mp3
+
+撃破された時この音がなるようにして
+
+敵が撃破された瞬間に、指定された爆発音のURLを再生する機能を追加しました。
+
+主な変更点：
+
+オーディオの組み込み: 指定されたGitHubのRaw URLを使用して、撃破時のSE（Sound Effect）をロードします。
+
+ブラウザの制限対応: 多くのブラウザではユーザーが画面をクリックするまで自動再生が制限されるため、ゲーム開始ボタン（START/REDEPLOY）を押した際にオーディオコンテキストをアクティブにする処理を入れています。
+
+撃破ロジックへの統合: BulletとEnemyの衝突判定部分で、HPが0になった瞬間にSEを再生するようにしました。
+
+https://github.com/02shusuke15-dot/materials/blob/main/maou_se_battle_explosion03.mp3
+
+こっちに変えて
+
+爆発音のURLを、新しく指定された maou_se_battle_explosion03.mp3 のRaw URLに変更しました。
+
+その他のロジック（サイズと速度の反比例、ブースト機能、演出など）はそのまま維持しています。
+
+ホームに戻れるようにして
+
+ゲームオーバー画面からタイトル画面（ホーム）に戻るための「BACK TO HOME」ボタンを追加しました。
+
+主な変更点：
+
+ホームボタンの追加: ゲームオーバー画面にボタンを追加し、スタイリングを調整しました。
+
+状態リセットロジック: showMenu 関数を新しく作成し、ゲームの状態を完全に初期化してタイトル画面を表示するようにしました。
+
+https://github.com/02shusuke15-dot/materials/blob/main/maou_bgm_fantasy04.mp3
+
+これをbgmで小さな音で流して
+
+指定されたBGM（maou_bgm_fantasy04.mp3）を追加し、ゲーム開始時にループ再生されるように変更しました。
+
+主な変更点：
+
+BGMの実装: audioタグまたはnew AudioでBGMをロードし、loop属性を有効にしました。
+
+音量調整: 指定通り小さな音（0.1程度）に設定しています。
+
+再生トリガー: ブラウザの制限により、ユーザーが「START MISSION」を押した瞬間に再生を開始します。
+
+終わったら音楽は止まるようにして
+
+ゲームオーバー（ミッション失敗）時にBGMが停止し、タイトルに戻った際もリセットされるよう修正しました。
+
+主な変更点：
+
+ゲームオーバー時の停止: endGame 関数内で bgmAudio.pause() を実行し、音楽が止まるようにしました。
+
+ホーム画面でのリセット: showMenu 関数でも確実に停止と再生位置のリセットを行っています。
+
+https://github.com/02shusuke15-dot/materials/blob/main/maou_se_battle_explosion06.mp3
+
+ぶつかったらこの音を出して
+
+ぶつかった際（エネミーの撃破時およびプレイヤーの被弾時）のSEを、指定された maou_se_battle_explosion06.mp3 に変更しました。
+
+主な変更点：
+
+explosionSoundUrl を新しいURLに更新しました。
+
+プレイヤーがエネミーに衝突した際にもこのSEが鳴るように処理を追加しました。
+
+音関係の音量を自由に設定できるようにして
+
+音量を自由に調整できるように、設定（Settings）メニューを追加しました。
+
+追加した機能：
+設定パネル: タイトル画面の右上に「⚙️」アイコンを配置し、クリックすると音量設定が開きます。
+
+音量スライダー: BGM（音楽）とSE（効果音）をそれぞれ 0〜100% の範囲で調整可能です。
+
+リアルタイム反映: ゲーム中も設定を変更でき、即座に音量へ反映されます。
+
+https://github.com/02shusuke15-dot/materials/blob/main/maou_se_battle_explosion03.mp3
+
+敵撃破時のSE
+
+https://github.com/02shusuke15-dot/materials/blob/main/maou_se_battle_explosion06.mp3
+
+接触時のSE
+
+敵の撃破時とプレイヤー接触時（ダメージ時）で異なるSEを再生するように更新しました。
+
+今回の変更点：
+SEの使い分け:
+
+敵を倒した時: explosion03.mp3（派手な爆発音）
+
+敵にぶつかった時: explosion06.mp3（少し重みのある音）
+
+設定の適用: 音量設定（SE Volume）は両方の音に共通して適用されるように調整しています。
+
+SEのデフォルトを30％にして
+
+SE（効果音）のデフォルト音量を30%（0.3）に調整しました。あわせて、設定画面の初期表示ラベルも「30%」に変更しています。
+
+escでゲームを一時停止し設定画面、タイトルバックが出るようにして
+
+Escキーを押した際にゲームを一時停止（ポーズ）し、設定画面を表示する機能を追加しました。ポーズ中はゲームの更新が止まり、設定画面から「ゲームに戻る」「タイトルに戻る」を選択できるようにロジックを更新しています。
+
+変更点
+ESCキーのハンドリング: ゲーム中にESCキーを押すとポーズ状態になり、設定画面（ポーズメニュー）が開くようにしました。
+
+一時停止ロジック:
+
+gameState に PAUSED を追加。ポーズ中は gameLoop 内の座標更新や衝突判定をスキップし、描画のみを行います。
+
+タイマーの経過時間がズレないよう、ポーズしていた合計時間を totalPausedTime として管理するようにしました。
+
+設定画面の拡張:
+
+ポーズメニューとして機能する際、「タイトルに戻る (QUIT TO TITLE)」ボタンが表示されるようにしました。
+
+スタートメニューから開いたときは通常の「SETTINGS」、ゲーム中から開いたときは「PAUSED」とタイトルが変わります。
+
+UI調整: HUDの右上に「Press ESC to Pause」のヒントを追加しました。
+
+撃破数と生き残った時間がわかるようハイスコア5個を出せるようにしてください
+
+撃破数と生存時間を記録し、上位5件のハイスコアを表示する機能を追加します。
+データの保存には、ブラウザを閉じても記録が残るよう localStorage を使用し、ゲームオーバー画面で自分のランキングを確認できるように構成を更新しました。
+
+今回の更新内容
+ハイスコア・ランキング機能:
+
+localStorage を利用して、上位5件のデータを保存するようにしました（ブラウザをリロードしても残ります）。
+
+記録項目として「スコア」「撃破数（Kills）」「生存時間（Time）」の3つをすべて保存・表示します。
+
+UIの追加:
+
+スタート画面: 下部に「TOP 5 MISSIONS」セクションを追加し、過去のベスト5をいつでも確認できるようにしました。
+
+ゲームオーバー画面: 「今回の結果」の横にランキング表を表示し、ランクインした場合は自分のスコアが黄色くハイライトされるようにしました。
+
+データ形式: 生存時間はミリ秒で保存し、表示時に 00:00 形式に変換して読みやすくしています。
+
+これで、目標を持って繰り返しプレイできる仕組みが整いました！
+
+エラーを修正しました。原因は、HTML内のID名が home-ranking（ハイフン）であるのに対し、JavaScriptコード内で home_ranking（アンダースコア）として参照しようとしていたため、要素が見つからずエラーが発生していました。
+
+ID名を統一し、安全に動作するように修正を加えました。
+
+I made some changes. ID名が一致していなかった箇所を修正し、要素が見つからない場合に発生していた innerHTML のエラーを解消しました。
+
+
+
+
+
+OECU のチャットはモデルのトレーニングには使用されません。Gemini は AI であり、間違えることがあります。プライバシーと Gemini新しいウィンドウで開く
+
+Triangle Strike - High Score System
+
+
+123456789101112131415161718192021222324252627282930
             touch-action: none;
-        }
-        canvas {
-            display: block;
-        }
-        #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            color: white;
-            user-select: none;
-        }
-        .overlay {
-            pointer-events: auto;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(8px);
-        }
-        .boost-bar-container {
-            width: 150px;
-            height: 8px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 4px;
-        }
-        #boost-fill {
-            height: 100%;
-            width: 100%;
-            background: #22d3ee;
-            transition: width 0.1s linear;
-        }
-        .stat-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: #94a3b8;
-            font-weight: bold;
-        }
-        .level-up-toast {
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #fde047;
-            font-size: 2rem;
-            font-weight: 900;
-            text-shadow: 0 0 20px rgba(253, 224, 71, 0.5);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s, transform 0.5s;
-        }
-        .level-up-active {
-            opacity: 1;
-            transform: translate(-50%, -80%);
-        }
-        input[type=range] {
-            accent-color: #22d3ee;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-
-    <div id="ui-layer">
-        <!-- Status Display -->
-        <div id="hud" class="p-4 flex justify-between items-start w-full hidden">
-            <div class="flex flex-col gap-2">
-                <div>
-                    <div class="stat-label">Score</div>
-                    <div class="text-2xl font-bold leading-tight" id="score">0</div>
-                </div>
-                <div class="flex gap-4">
-                    <div>
-                        <div class="stat-label">Kills</div>
-                        <div class="text-xl font-mono" id="kills">0</div>
-                    </div>
-                    <div>
-                        <div class="stat-label">Time</div>
-                        <div class="text-xl font-mono" id="timer">00:00</div>
-                    </div>
-                </div>
-                <div class="mt-1">
-                    <div class="stat-label">Boost (SHIFT)</div>
-                    <div class="boost-bar-container">
-                        <div id="boost-fill"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="text-right">
-                <div class="stat-label text-right">Life</div>
-                <div class="text-2xl" id="life">❤❤❤</div>
-            </div>
-        </div>
-
-        <div id="level-toast" class="level-up-toast italic">INTENSITY MAX!!</div>
-
-        <!-- Start Menu -->
-        <div id="menu" class="absolute inset-0 flex flex-col items-center justify-center overlay">
-            <button id="settings-toggle" class="absolute top-6 right-6 p-3 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors pointer-events-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-
-            <h1 class="text-5xl font-extrabold mb-4 text-cyan-400 italic">TRIANGLE STRIKE</h1>
-            <p class="text-lg mb-8 text-slate-300 font-light tracking-widest uppercase">Target: Survive as long as possible</p>
-            
-            <button id="start-btn" class="px-10 py-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full text-2xl font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-cyan-900/50">
-                START MISSION
-            </button>
-
-            <div class="mt-12 grid grid-cols-2 gap-6 text-sm text-slate-400 bg-slate-900/80 p-6 rounded-2xl border border-slate-700 shadow-2xl">
-                <div>
-                    <span class="text-cyan-400 font-bold uppercase tracking-tighter">[CONTROLS]</span><br>
-                    WASD: Move<br>
-                    SPACE/CLICK: Shoot
-                </div>
-                <div>
-                    <span class="text-cyan-400 font-bold uppercase tracking-tighter">[SKILL]</span><br>
-                    SHIFT: Boost Dash<br>
-                    (Short Invulnerability)
-                </div>
-            </div>
-        </div>
-
-        <!-- Settings Modal -->
-        <div id="settings-modal" class="hidden absolute inset-0 flex items-center justify-center overlay">
-            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-700 shadow-2xl w-80 flex flex-col gap-6">
-                <h3 class="text-2xl font-bold text-cyan-400 border-b border-slate-700 pb-2">SETTINGS</h3>
-                
-                <div class="flex flex-col gap-2">
-                    <div class="flex justify-between items-center">
-                        <label class="stat-label">BGM Volume</label>
-                        <span id="bgm-val" class="text-xs font-mono">10%</span>
-                    </div>
-                    <input type="range" id="bgm-slider" min="0" max="1" step="0.01" value="0.1" class="w-full">
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    <div class="flex justify-between items-center">
-                        <label class="stat-label">SE Volume</label>
-                        <span id="se-val" class="text-xs font-mono">30%</span>
-                    </div>
-                    <input type="range" id="se-slider" min="0" max="1" step="0.01" value="0.3" class="w-full">
-                </div>
-
-                <button id="settings-close" class="mt-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold transition-colors">
-                    CLOSE
-                </button>
-            </div>
-        </div>
-
-        <!-- Game Over -->
-        <div id="game-over" class="hidden absolute inset-0 flex flex-col items-center justify-center overlay text-center">
-            <h2 class="text-7xl font-black text-red-500 mb-2 italic">MISSION FAILED</h2>
-            
-            <div class="bg-slate-900/80 p-8 rounded-3xl border border-red-900/30 shadow-2xl mb-8 w-80">
-                <p class="text-slate-400 uppercase text-sm font-bold mb-1">Final Score</p>
-                <p class="text-5xl font-bold mb-6 text-white" id="final-score">0</p>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-slate-500 text-xs font-bold uppercase">Kills</p>
-                        <p class="text-xl font-mono text-cyan-400" id="final-kills">0</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-500 text-xs font-bold uppercase">Time</p>
-                        <p class="text-xl font-mono text-cyan-400" id="final-time">00:00</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex flex-col gap-4">
-                <button id="restart-btn" class="px-10 py-4 bg-white text-slate-900 rounded-full text-2xl font-bold transition-all hover:scale-105 active:scale-95 shadow-xl">
-                    REDEPLOY
-                </button>
-                <button id="home-btn" class="px-10 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-full text-lg font-bold transition-all hover:scale-105 active:scale-95 shadow-lg">
-                    BACK TO HOME
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <canvas id="gameCanvas"></canvas>
-
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // UI Elements
-        const hud = document.getElementById('hud');
-        const scoreEl = document.getElementById('score');
-        const killsEl = document.getElementById('kills');
-        const timerEl = document.getElementById('timer');
-        const lifeEl = document.getElementById('life');
-        const boostFill = document.getElementById('boost-fill');
-        const levelToast = document.getElementById('level-toast');
-        const menu = document.getElementById('menu');
-        const gameOverScreen = document.getElementById('game-over');
-        const settingsModal = document.getElementById('settings-modal');
-        
-        const finalScoreEl = document.getElementById('final-score');
-        const finalKillsEl = document.getElementById('final-kills');
-        const finalTimeEl = document.getElementById('final-time');
-        
-        const startBtn = document.getElementById('start-btn');
-        const restartBtn = document.getElementById('restart-btn');
-        const homeBtn = document.getElementById('home-btn');
-        const settingsToggle = document.getElementById('settings-toggle');
-        const settingsClose = document.getElementById('settings-close');
-
-        // Audio Settings Elements
-        const bgmSlider = document.getElementById('bgm-slider');
-        const seSlider = document.getElementById('se-slider');
-        const bgmValLabel = document.getElementById('bgm-val');
-        const seValLabel = document.getElementById('se-val');
-
-        // Audio Setup
-        // 敵撃破時のSE (explosion03)
-        const killSoundUrl = "https://raw.githubusercontent.com/02shusuke15-dot/materials/main/maou_se_battle_explosion03.mp3";
-        const killAudio = new Audio(killSoundUrl);
-
-        // 接触時（ダメージ）のSE (explosion06)
-        const hitSoundUrl = "https://raw.githubusercontent.com/02shusuke15-dot/materials/main/maou_se_battle_explosion06.mp3";
-        const hitAudio = new Audio(hitSoundUrl);
-        
-        const bgmSoundUrl = "https://raw.githubusercontent.com/02shusuke15-dot/materials/main/maou_bgm_fantasy04.mp3";
-        const bgmAudio = new Audio(bgmSoundUrl);
-        bgmAudio.loop = true;
-
-        // Default Volumes (Updated SE to 30%)
-        let bgmVolume = 0.1;
-        let seVolume = 0.3;
-
-        function updateVolumeSettings() {
-            bgmVolume = parseFloat(bgmSlider.value);
-            seVolume = parseFloat(seSlider.value);
-            
-            bgmAudio.volume = bgmVolume;
-            // メインオブジェクトの音量も一応更新
-            killAudio.volume = seVolume;
-            hitAudio.volume = seVolume;
-            
-            bgmValLabel.innerText = Math.round(bgmVolume * 100) + "%";
-            seValLabel.innerText = Math.round(seVolume * 100) + "%";
-        }
-
-        // Initialize volumes
-        updateVolumeSettings();
-
-        bgmSlider.addEventListener('input', updateVolumeSettings);
-        seSlider.addEventListener('input', updateVolumeSettings);
-
-        let gameState = 'MENU';
-        let score = 0;
-        let kills = 0;
-        let life = 3;
-        let startTime = 0;
-        let elapsedTime = 0;
-        let toastShown = false;
-        let spawnTimer = null;
-
-        let player;
-        let bullets = [];
-        let enemies = [];
-        let particles = [];
-
-        const keys = {
-            w: false, a: false, s: false, d: false,
-            shift: false, space: false
-        };
-        const mouse = { x: 0, y: 0 };
-
-        function init() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            
-            player = {
-                x: canvas.width / 2,
-                y: canvas.height / 2,
-                radius: 15,
-                angle: 0,
-                color: '#22d3ee',
-                vx: 0,
-                vy: 0,
-                friction: 0.9,
-                boostCooldown: 0,
-                boostMaxCooldown: 180, 
-                invulnerable: 0
-            };
-
-            bullets = [];
-            enemies = [];
-            particles = [];
-            score = 0;
-            kills = 0;
-            life = 3;
-            startTime = Date.now();
-            elapsedTime = 0;
-            toastShown = false;
-            
-            updateUI();
-        }
-
-        class Bullet {
-            constructor(x, y, angle) {
-                this.x = x;
-                this.y = y;
-                this.vx = Math.cos(angle) * 16;
-                this.vy = Math.sin(angle) * 16;
-                this.radius = 4;
-                this.color = '#fde047';
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color;
-                ctx.fill();
-                ctx.closePath();
-                ctx.shadowBlur = 0;
-            }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-            }
-        }
-
-        class Enemy {
-            constructor() {
-                const edge = Math.floor(Math.random() * 4);
-                if (edge === 0) { this.x = Math.random() * canvas.width; this.y = -30; }
-                else if (edge === 1) { this.x = canvas.width + 30; this.y = Math.random() * canvas.height; }
-                else if (edge === 2) { this.x = Math.random() * canvas.width; this.y = canvas.height + 30; }
-                else { this.x = -30; this.y = Math.random() * canvas.height; }
-
-                this.radius = 8 + Math.random() * 14; 
-                this.maxHp = Math.ceil((this.radius - 6) / 5);
-                this.hp = this.maxHp;
-                
-                const speedBase = 35 / this.radius; 
-                const timeFactor = Math.min(1, elapsedTime / 30000);
-                this.speed = (speedBase + Math.random() * 1.0) * (1 + timeFactor * 0.7);
-                
-                this.color = this.hp > 2 ? '#ef4444' : (this.hp > 1 ? '#f87171' : '#fb923c');
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.strokeStyle = this.color;
-                ctx.lineWidth = 2.5;
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius * 0.4 * (this.hp / this.maxHp), 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
-            update() {
-                const dx = player.x - this.x;
-                const dy = player.y - this.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist > 0) {
-                    this.x += (dx / dist) * this.speed;
-                    this.y += (dy / dist) * this.speed;
-                }
-            }
-        }
-
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x; this.y = y; this.color = color;
-                this.vx = (Math.random() - 0.5) * 8;
-                this.vy = (Math.random() - 0.5) * 8;
-                this.alpha = 1;
-                this.decay = 0.02 + Math.random() * 0.03;
-            }
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-                ctx.restore();
-            }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.alpha -= this.decay;
-            }
-        }
-
-        // 再生関数をSEごとに作成
-        function playKillSound() {
-            const sound = killAudio.cloneNode();
-            sound.volume = seVolume;
-            sound.play().catch(e => {});
-        }
-
-        function playHitSound() {
-            const sound = hitAudio.cloneNode();
-            sound.volume = seVolume;
-            sound.play().catch(e => {});
-        }
-
-        function formatTime(ms) {
-            const totalSeconds = Math.floor(ms / 1000);
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
-            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        function showLevelUp() {
-            levelToast.classList.add('level-up-active');
-            setTimeout(() => levelToast.classList.remove('level-up-active'), 1500);
-        }
-
-        function spawnEnemy() {
-            if (gameState !== 'PLAYING') return;
-            enemies.push(new Enemy());
-            const timeFactor = Math.min(1, elapsedTime / 30000);
-            if (timeFactor >= 1 && !toastShown) {
-                showLevelUp();
-                toastShown = true;
-            }
-            const startInterval = 1400;
-            const endInterval = 500;
-            const currentInterval = startInterval - (startInterval - endInterval) * timeFactor;
-            const nextSpawn = Math.max(endInterval, currentInterval - (Math.random() * 100));
-            spawnTimer = setTimeout(spawnEnemy, nextSpawn);
-        }
-
-        function createExplosion(x, y, color, count = 10) {
-            for (let i = 0; i < count; i++) {
-                particles.push(new Particle(x, y, color));
-            }
-        }
-
-        function updateUI() {
-            scoreEl.innerText = score.toLocaleString();
-            killsEl.innerText = kills;
-            lifeEl.innerText = '❤'.repeat(Math.max(0, life));
-            if (gameState === 'PLAYING') {
-                elapsedTime = Date.now() - startTime;
-                timerEl.innerText = formatTime(elapsedTime);
-            }
-            const ratio = (1 - player.boostCooldown / player.boostMaxCooldown) * 100;
-            boostFill.style.width = `${ratio}%`;
-            boostFill.style.backgroundColor = ratio === 100 ? '#22d3ee' : '#64748b';
-        }
-
-        function shoot() {
-            bullets.push(new Bullet(player.x, player.y, player.angle));
-        }
-
-        function handleInput() {
-            if (gameState !== 'PLAYING') return;
-            let ax = 0, ay = 0;
-            if (keys.w) ay -= 1;
-            if (keys.s) ay += 1;
-            if (keys.a) ax -= 1;
-            if (keys.d) ax += 1;
-            if (ax !== 0 || ay !== 0) {
-                const mag = Math.sqrt(ax * ax + ay * ay);
-                ax /= mag; ay /= mag;
-            }
-            player.vx += ax * 0.9;
-            player.vy += ay * 0.9;
-            if (keys.shift && player.boostCooldown <= 0) {
-                if (ax !== 0 || ay !== 0) {
-                    player.vx += ax * 14; player.vy += ay * 14;
-                } else {
-                    player.vx += Math.cos(player.angle) * 14; player.vy += Math.sin(player.angle) * 14;
-                }
-                player.boostCooldown = player.boostMaxCooldown;
-                player.invulnerable = 15; 
-                createExplosion(player.x, player.y, '#fff', 15);
-            }
-        }
-
-        function updateRotation() {
-            if (enemies.length === 0) {
-                const targetAngle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
-                player.angle = lerpAngle(player.angle, targetAngle, 0.1);
-                return;
-            }
-            let closestEnemy = null;
-            let minDistance = Infinity;
-            enemies.forEach(enemy => {
-                const dist = Math.hypot(enemy.x - player.x, enemy.y - player.y);
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    closestEnemy = enemy;
-                }
-            });
-            if (closestEnemy) {
-                const targetAngle = Math.atan2(closestEnemy.y - player.y, closestEnemy.x - player.x);
-                player.angle = lerpAngle(player.angle, targetAngle, 0.25);
-            }
-        }
-
-        function lerpAngle(a, b, step) {
-            let delta = b - a;
-            while (delta < -Math.PI) delta += Math.PI * 2;
-            while (delta > Math.PI) delta -= Math.PI * 2;
-            return a + delta * step;
-        }
-
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            particles.forEach((p, i) => { p.update(); p.draw(); if (p.alpha <= 0) particles.splice(i, 1); });
-
-            if (gameState === 'PLAYING' || gameState === 'GAMEOVER') {
-                handleInput();
-                player.x += player.vx; player.y += player.vy;
-                player.vx *= player.friction; player.vy *= player.friction;
-                player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
-                player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
-                if (gameState === 'PLAYING') {
-                    updateRotation();
-                    updateUI(); 
-                }
-                if (player.boostCooldown > 0) player.boostCooldown--;
-                if (player.invulnerable > 0) player.invulnerable--;
-                
-                bullets.forEach((b, i) => {
-                    b.update(); b.draw();
-                    if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
-                        bullets.splice(i, 1);
-                    } else {
-                        enemies.forEach((e, j) => {
-                            if (Math.hypot(b.x - e.x, b.y - e.y) < e.radius) {
-                                e.hp--;
-                                bullets.splice(i, 1);
-                                if (e.hp <= 0) {
-                                    score += (e.maxHp * 150);
-                                    kills += 1;
-                                    updateUI();
-                                    playKillSound(); // 敵撃破: explosion03
-                                    createExplosion(e.x, e.y, e.color, 12);
-                                    enemies.splice(j, 1);
-                                } else {
-                                    createExplosion(b.x, b.y, '#ffffff', 3);
-                                }
-                            }
-                        });
-                    }
-                });
-
-                enemies.forEach((e, i) => {
-                    e.update(); e.draw();
-                    if (gameState === 'PLAYING' && player.invulnerable <= 0) {
-                        if (Math.hypot(e.x - player.x, e.y - player.y) < e.radius + player.radius) {
-                            life--; updateUI();
-                            playHitSound(); // 接触ダメージ: explosion06
-                            createExplosion(player.x, player.y, '#ffffff', 20);
-                            enemies.splice(i, 1);
-                            if (life <= 0) endGame();
-                        }
-                    }
-                });
-
-                if (gameState === 'PLAYING') {
-                    ctx.save();
-                    ctx.translate(player.x, player.y);
-                    ctx.rotate(player.angle);
-                    if (player.invulnerable > 0 && Math.floor(Date.now() / 50) % 2 === 0) ctx.globalAlpha = 0.3;
-                    ctx.beginPath();
-                    ctx.moveTo(player.radius * 1.5, 0);
-                    ctx.lineTo(-player.radius, player.radius);
-                    ctx.lineTo(-player.radius * 0.5, 0);
-                    ctx.lineTo(-player.radius, -player.radius);
-                    ctx.closePath();
-                    ctx.fillStyle = player.color;
-                    ctx.shadowBlur = player.invulnerable > 0 ? 30 : 15;
-                    ctx.shadowColor = player.color;
-                    ctx.fill();
-                    ctx.restore();
-                }
-            }
-            requestAnimationFrame(gameLoop);
-        }
-
-        function startGame() {
-            clearTimeout(spawnTimer);
-            
-            bgmAudio.currentTime = 0;
-            bgmAudio.play().catch(() => {});
-
-            // プリロード
-            killAudio.play().then(() => { killAudio.pause(); killAudio.currentTime = 0; }).catch(() => {});
-            hitAudio.play().then(() => { hitAudio.pause(); hitAudio.currentTime = 0; }).catch(() => {});
-            
-            init();
-            gameState = 'PLAYING';
-            menu.classList.add('hidden');
-            gameOverScreen.classList.add('hidden');
-            hud.classList.remove('hidden');
-            spawnEnemy();
-        }
-
-        function endGame() {
-            gameState = 'GAMEOVER';
-            bgmAudio.pause();
-            
-            gameOverScreen.classList.remove('hidden');
-            hud.classList.add('hidden');
-            finalScoreEl.innerText = score.toLocaleString();
-            finalKillsEl.innerText = kills;
-            finalTimeEl.innerText = formatTime(elapsedTime);
-        }
-
-        function showMenu() {
-            gameState = 'MENU';
-            bgmAudio.pause();
-            bgmAudio.currentTime = 0;
-
-            clearTimeout(spawnTimer);
-            gameOverScreen.classList.add('hidden');
-            menu.classList.remove('hidden');
-            hud.classList.add('hidden');
-            init(); 
-        }
-
-        function toggleSettings() {
-            settingsModal.classList.toggle('hidden');
-        }
-
-        window.addEventListener('keydown', (e) => {
-            const k = e.key.toLowerCase();
-            if (k in keys) keys[k] = true;
-            if (e.code === 'Space') {
-                keys.space = true;
-                if (gameState === 'PLAYING') shoot();
-            }
-            if (e.key === 'Escape') settingsModal.classList.add('hidden');
-        });
-
-        window.addEventListener('keyup', (e) => {
-            const k = e.key.toLowerCase();
-            if (k in keys) keys[k] = false;
-            if (e.code === 'Space') keys.space = false;
-        });
-
-        window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
-        window.addEventListener('mousedown', () => { if (gameState === 'PLAYING') shoot(); });
-        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-
-        startBtn.addEventListener('click', startGame);
-        restartBtn.addEventListener('click', startGame);
-        homeBtn.addEventListener('click', showMenu);
-        settingsToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleSettings();
-        });
-        settingsClose.addEventListener('click', toggleSettings);
-
-        init();
-        gameLoop();
-    </script>
-</body>
-</html>
+<!DOCTYPE html>
